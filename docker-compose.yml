@@ -1,0 +1,44 @@
+services:
+  app:
+    container_name: nestjs-user-auth-api
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - nest-network
+
+  postgres:
+    container_name: nest_postgres
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - nest-network
+
+  pgadmin:
+    container_name: nest_pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
+    networks:
+      - nest-network
+
+volumes:
+  pgdata:
+
+networks:
+  nest-network:
