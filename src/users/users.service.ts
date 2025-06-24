@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/database/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PrismaService } from 'src/database/prisma.service';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -27,7 +27,19 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({ where: { id: id } });
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async findByEmailOrThrow(email: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
       throw new NotFoundException();
     }
@@ -38,7 +50,6 @@ export class UsersService {
     await this.findOne(id);
 
     const { password, ...rest } = updateUserDto;
-
     const data: Partial<User> = { ...rest };
 
     if (password) {
@@ -47,15 +58,13 @@ export class UsersService {
       data.password = hashedPassword;
     }
 
-    const updatedUser = await this.prisma.user.update({
+    return this.prisma.user.update({
       where: { id },
       data,
     });
-
-    return updatedUser;
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<User> {
     await this.findOne(id);
     return this.prisma.user.delete({ where: { id } });
   }
