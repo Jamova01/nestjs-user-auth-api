@@ -10,6 +10,8 @@ services:
       - .env
     networks:
       - nest-network
+    # Remove this line since CMD is already defined in Dockerfile
+    # command: ['./wait-for.sh', 'postgres:5432', '--', 'node', 'dist/main']
 
   postgres:
     container_name: nest_postgres
