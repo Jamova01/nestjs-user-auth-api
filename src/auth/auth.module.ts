@@ -6,8 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { UsersModule } from 'src/users/users.module';
 
 import { AuthService } from './auth.service';
-import { LocalStrategy } from './local.strategy';
-import { JwtStrategy } from './jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [

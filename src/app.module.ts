@@ -8,7 +8,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './database/prisma.module';
 
 import { AuthModule } from './auth/auth.module';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 import { UsersModule } from './users/users.module';
 

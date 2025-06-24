@@ -2,10 +2,10 @@ import { Controller, Request, Post, UseGuards, Get } from '@nestjs/common';
 
 import { AuthService } from './auth/auth.service';
 
-import { LocalAuthGuard } from './auth/local-auth.guard';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { LocalAuthGuard } from './auth/guards/local-auth.guard';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
-import { Public } from './auth/decorators/public.decorator';
+import { Public } from './common/decorators/public.decorator';
 
 import { AuthTokenDto } from './auth/dto/auth-token.dto';
 import { RequestUser } from './auth/interfaces/user-from-request.interface';
