@@ -72,6 +72,7 @@ export class UsersController {
   }
 
   @Get()
+  @Roles(Role.ADMIN)
   @ApiOkResponse({
     type: UserResponseDto,
     isArray: true,
@@ -85,6 +86,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @Roles(Role.ADMIN)
   @ApiParam({ name: 'id', description: 'UUID of the user' })
   @ApiOkResponse({ type: UserResponseDto, description: 'User found' })
   @ApiNotFoundResponse({ description: 'User not found' })
@@ -96,6 +98,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @Roles(Role.ADMIN)
   @ApiParam({ name: 'id', description: 'UUID of the user to update' })
   @ApiOkResponse({
     type: UserResponseDto,
@@ -110,6 +113,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @Roles(Role.ADMIN)
   @ApiParam({ name: 'id', description: 'UUID of the user to delete' })
   @ApiNoContentResponse({ description: 'User deleted successfully' })
   @ApiNotFoundResponse({ description: 'User not found' })
