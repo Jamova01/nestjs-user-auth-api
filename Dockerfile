@@ -25,4 +25,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Start app using wait-for
-CMD ["./wait-for.sh", "postgres:5432", "--", "node", "dist/main"]
+CMD ["./wait-for.sh", "postgres", "5432", "node", "dist/main"]
