@@ -38,8 +38,12 @@ export class AuthService {
     });
   }
 
-  login(user: Pick<User, 'email' | 'id'>): AuthTokenDto {
-    const payload = { email: user.email, sub: user.id };
+  login(user: Pick<User, 'email' | 'id' | 'role'>): AuthTokenDto {
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
