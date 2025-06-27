@@ -8,6 +8,7 @@ import { PrismaModule } from './database/prisma.module';
 
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 import { UsersModule } from './users/users.module';
 
@@ -30,6 +31,10 @@ import jwtConfig from './config/jwt.config';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })
