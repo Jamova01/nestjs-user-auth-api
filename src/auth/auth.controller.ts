@@ -1,18 +1,10 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Body, Request, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOkResponse,
   ApiCreatedResponse,
   ApiBadRequestResponse,
   ApiUnauthorizedResponse,
-  ApiBearerAuth,
   ApiBody,
 } from '@nestjs/swagger';
 
@@ -80,21 +72,5 @@ export class AuthController {
   })
   async register(@Body() registerDto: RegisterDto): Promise<UserResponseDto> {
     return this.authService.register(registerDto);
-  }
-
-  /**
-   * Get current authenticated user
-   */
-  @ApiBearerAuth('JWT-auth')
-  @Get('profile')
-  @ApiOkResponse({
-    description: 'Returns the authenticated user or admin information',
-    type: UserResponseDto,
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Unauthorized: missing or invalid JWT token',
-  })
-  getProfile(@Request() req: { user: RequestUser }): RequestUser {
-    return req.user;
   }
 }
