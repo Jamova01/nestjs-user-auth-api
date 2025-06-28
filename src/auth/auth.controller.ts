@@ -1,18 +1,19 @@
 import {
   Controller,
-  Request,
   Post,
-  UseGuards,
   Get,
   Body,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiTags,
+  ApiOkResponse,
+  ApiCreatedResponse,
   ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
   ApiBearerAuth,
   ApiBody,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
@@ -25,17 +26,18 @@ import { AuthTokenDto } from './dto/auth-token.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UserResponseDto } from 'src/users/dto/user-response.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
+  /**
+   * Login user with credentials
+   */
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  @ApiOkResponse({
-    description: 'Login successful.',
-    type: AuthTokenDto,
-  })
+  @ApiOkResponse({ description: 'Login successful.', type: AuthTokenDto })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials.' })
   @ApiBody({
     schema: {
@@ -50,6 +52,9 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
+  /**
+   * Register a new user
+   */
   @Public()
   @Post('register')
   @ApiCreatedResponse({
@@ -73,10 +78,13 @@ export class AuthController {
       },
     },
   })
-  register(@Body() registerDto: RegisterDto): Promise<UserResponseDto> {
+  async register(@Body() registerDto: RegisterDto): Promise<UserResponseDto> {
     return this.authService.register(registerDto);
   }
 
+  /**
+   * Get current authenticated user
+   */
   @ApiBearerAuth('JWT-auth')
   @Get('profile')
   @ApiOkResponse({
