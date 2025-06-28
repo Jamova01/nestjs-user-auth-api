@@ -2,36 +2,44 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Patch,
-  Param,
   Delete,
+  Param,
+  Body,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from './dto/user-response.dto';
 import {
   ApiTags,
   ApiBody,
-  ApiCreatedResponse,
+  ApiParam,
   ApiOkResponse,
-  ApiNoContentResponse,
+  ApiCreatedResponse,
   ApiBadRequestResponse,
   ApiNotFoundResponse,
-  ApiParam,
+  ApiNoContentResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+
+import { plainToInstance } from 'class-transformer';
+
+import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
+
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 
 @ApiTags('Users')
+@ApiBearerAuth('JWT-auth')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  /**
+   * Create a new user (admin only)
+   */
   @Post()
   @Roles(Role.ADMIN)
   @ApiCreatedResponse({
@@ -43,7 +51,7 @@ export class UsersController {
   })
   @ApiBody({
     type: CreateUserDto,
-    description: 'Create a new user with email, password and optional role',
+    description: 'Create a new user with optional role',
     examples: {
       admin: {
         summary: 'Create admin user',
@@ -55,7 +63,7 @@ export class UsersController {
         },
       },
       user: {
-        summary: 'Create standard user (role optional)',
+        summary: 'Create standard user',
         value: {
           name: 'Andrés Perez',
           email: 'andres@example.com',
@@ -64,13 +72,14 @@ export class UsersController {
       },
     },
   })
-  async create(@Body() createUserDto: CreateUserDto) {
-    const user = await this.usersService.create(createUserDto);
-    return plainToInstance(UserResponseDto, user, {
-      excludeExtraneousValues: true,
-    });
+  async create(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
+    const user = await this.usersService.create(dto);
+    return this.toResponse(user);
   }
 
+  /**
+   * Get all users (admin only)
+   */
   @Get()
   @Roles(Role.ADMIN)
   @ApiOkResponse({
@@ -78,25 +87,27 @@ export class UsersController {
     isArray: true,
     description: 'Retrieve all users',
   })
-  async findAll() {
+  async findAll(): Promise<UserResponseDto[]> {
     const users = await this.usersService.findAll();
-    return plainToInstance(UserResponseDto, users, {
-      excludeExtraneousValues: true,
-    });
+    return users.map(this.toResponse);
   }
 
+  /**
+   * Get one user by ID (admin only)
+   */
   @Get(':id')
   @Roles(Role.ADMIN)
   @ApiParam({ name: 'id', description: 'UUID of the user' })
   @ApiOkResponse({ type: UserResponseDto, description: 'User found' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<UserResponseDto> {
     const user = await this.usersService.findOne(id);
-    return plainToInstance(UserResponseDto, user, {
-      excludeExtraneousValues: true,
-    });
+    return this.toResponse(user);
   }
 
+  /**
+   * Update user by ID (admin only)
+   */
   @Patch(':id')
   @Roles(Role.ADMIN)
   @ApiParam({ name: 'id', description: 'UUID of the user to update' })
@@ -105,20 +116,30 @@ export class UsersController {
     description: 'User updated successfully',
   })
   @ApiNotFoundResponse({ description: 'User not found' })
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const user = await this.usersService.update(id, updateUserDto);
-    return plainToInstance(UserResponseDto, user, {
-      excludeExtraneousValues: true,
-    });
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    const user = await this.usersService.update(id, dto);
+    return this.toResponse(user);
   }
 
+  /**
+   * Delete user by ID (admin only)
+   */
   @Delete(':id')
   @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({ name: 'id', description: 'UUID of the user to delete' })
   @ApiNoContentResponse({ description: 'User deleted successfully' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<void> {
     await this.usersService.remove(id);
   }
+
+  /**
+   * Helper method to transform entity to response DTO
+   */
+  private toResponse = (user: any): UserResponseDto =>
+    plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true });
 }
