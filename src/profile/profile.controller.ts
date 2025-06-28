@@ -6,15 +6,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/common/decorators/user.decorator';
 import { RequestUser } from 'src/auth/interfaces/user-from-request.interface';
 import { UserResponseDto } from 'src/users/dto/user-response.dto';
-import { UseGuards } from '@nestjs/common';
 
 @ApiTags('Profile')
 @ApiBearerAuth('JWT-auth')
-@UseGuards(JwtAuthGuard)
 @Controller('profile')
 export class ProfileController {
   /**
