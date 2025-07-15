@@ -1,46 +1,13 @@
 services:
-  app:
-    container_name: nestjs-user-auth-api
-    build: .
-    ports:
-      - '3000:3000'
-    depends_on:
-      - postgres
-    env_file:
-      - .env
-    networks:
-      - nest-network
-    # Remove this line since CMD is already defined in Dockerfile
-    # command: ['./wait-for.sh', 'postgres:5432', '--', 'node', 'dist/main']
-
   postgres:
-    container_name: nest_postgres
-    image: postgres:15
+    image: postgres:13.5
     restart: always
     env_file:
       - .env
+    volumes:
+      - postgres:/var/lib/postgresql/data
     ports:
       - '5432:5432'
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - nest-network
-
-  pgadmin:
-    container_name: nest_pgadmin
-    image: dpage/pgadmin4
-    restart: always
-    env_file:
-      - .env
-    ports:
-      - '5050:80'
-    depends_on:
-      - postgres
-    networks:
-      - nest-network
 
 volumes:
-  pgdata:
-
-networks:
-  nest-network:
+  postgres:
