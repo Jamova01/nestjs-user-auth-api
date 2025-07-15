@@ -1,39 +1,48 @@
+import * as bcrypt from 'bcrypt';
 import { PrismaClient, Role } from '@prisma/client';
+
+import { SALT_ROUNDS } from 'src/common/constants';
 
 const prisma = new PrismaClient();
 
 const DEFAULT_ADMIN = {
   email: 'admin1@gmail.com',
   name: 'Admin',
-  password: '$2a$12$aqmxL1ZCDnJWeM69Tp7vxeAPxI7qoQxCglZGSXLa94HY4K68.FChC',
+  password: 'Admin123',
   role: 'ADMIN',
 };
 
-async function main() {
-  const admin = await prisma.user.upsert({
+async function main(): Promise<void> {
+  const hashedPassword = await bcrypt.hash(DEFAULT_ADMIN.password, SALT_ROUNDS);
+
+  const user1 = await prisma.user.upsert({
     where: { email: DEFAULT_ADMIN.email },
     update: {},
     create: {
       email: DEFAULT_ADMIN.email,
       name: DEFAULT_ADMIN.name,
-      password: DEFAULT_ADMIN.password,
+      password: hashedPassword,
       role: Role.ADMIN,
     },
   });
 
-  console.log('✅ Admin user ready:', {
-    id: admin.id,
-    email: admin.email,
-    role: admin.role,
-  });
+  console.log(user1);
 }
 
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
+async function run(): Promise<void> {
+  try {
+    await main();
+    console.log('Script completed successfully.');
+  } catch (e) {
+    console.error('Error occurred:', e);
     process.exit(1);
-  });
+  } finally {
+    await prisma.$disconnect();
+    console.log('Prisma client disconnected.');
+  }
+}
+
+run().catch((e) => {
+  console.error('Unhandled error in run:', e);
+  process.exit(1);
+});
