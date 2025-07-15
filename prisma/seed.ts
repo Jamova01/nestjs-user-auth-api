@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { PrismaClient, Role } from '@prisma/client';
 
-import { SALT_ROUNDS } from 'src/common/constants';
+const SALT_ROUNDS = 12;
 
 const prisma = new PrismaClient();
 
